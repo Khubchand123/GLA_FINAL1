@@ -1,74 +1,32 @@
-let chance = 6;
 
-const cards = document.querySelectorAll('.memory-card');
-let div = document.getElementById("ch");
-function change(){
-    if(chance==0){
-        alert('GameOver');
-        window.location.reload();
+
+(Array.from(document.getElementsByTagName("a"))).forEach((a)=>{
+    console.log("assd");
+    a.addEventListener("click",book);
+});
+
+
+function book(e){
+    e.preventDefault();
+    console.log(e.target.id);
+    if(e.target.id=="alice"){
+        read("./books/AliceInWonderland.txt","Alice In WonderLand");
     }
-    div.innerText=`Trials Remaining: ${chance}`;
+    if(e.target.id=="hyde"){
+        read("./books/JekyllAndHyde.txt","Jekyll And Hyde");
+    }
+    if(e.target.id=="lord"){
+        read("./books/LOTR.txt","Lord Of The Rings");
+    }
 }
 
-let hasFlippedCard = false;
-let lockBoard = false;
-let firstCard, secondCard;
-
-function flipCard() {
-  if (lockBoard) return;
-  if (this === firstCard) return;
-
-  this.classList.add('flip');
-
-  if (!hasFlippedCard) {
-    // first click
-    hasFlippedCard = true;
-    firstCard = this;
-
-    return;
-  }
-
-  // second click
-  secondCard = this;
-  chance--;
-  change();
-  checkForMatch();
+function read(url,title){
+    var client = new XMLHttpRequest();
+client.open('GET', url);
+client.onreadystatechange = function() {
+  var t=client.responseText;
+  document.getElementById("bhead").innerText=title;
+  document.getElementById("btext").innerText=t;
 }
-
-function checkForMatch() {
-  let isMatch = firstCard.dataset.framework === secondCard.dataset.framework;
-  
-  isMatch ? disableCards() : unflipCards();
+client.send();
 }
-
-function disableCards() {
-  firstCard.removeEventListener('click', flipCard);
-  secondCard.removeEventListener('click', flipCard);
-
-  resetBoard();
-}
-
-function unflipCards() {
-  lockBoard = true;
-
-  setTimeout(() => {
-    firstCard.classList.remove('flip');
-    secondCard.classList.remove('flip');
-
-    resetBoard();
-  }, 1500);
-}
-
-function resetBoard() {
-  [hasFlippedCard, lockBoard] = [false, false];
-  [firstCard, secondCard] = [null, null];
-}
-
-(function shuffle() {
-  cards.forEach(card => {
-    let randomPos = Math.floor(Math.random() * 12);
-    card.style.order = randomPos;
-  });
-})();
-
-cards.forEach(card => card.addEventListener('click', flipCard));
